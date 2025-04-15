@@ -1,3 +1,5 @@
+// https://github.com/moononournation/RGB565_video/blob/master/SD_MJPEG_video/SD_MJPEG_video.ino
+
 #define MJPEG_FILENAME "/t1_240_30fps.mjpeg"
 #define MJPEG_BUFFER_SIZE (300 * 220 * 2 / 4)
 
@@ -13,11 +15,14 @@
 SPIClass spiSD(HSPI);
 
 #include <Arduino_GFX_Library.h>
-#define TFT_BRIGHTNESS 200
+#define TFT_BRIGHTNESS 128
 #define TFT_BL 16
 
 Arduino_HWSPI *bus = new Arduino_HWSPI(2 /* DC */, 15 /* CS */, SCK, MOSI, MISO);
-Arduino_GFX *gfx = new Arduino_ILI9341(bus, 4 /* RST */, 0 /* rotation */);
+Arduino_GFX *gfx = new Arduino_ST7789(bus, 4 /* RST */, 2 /* rotation */);
+
+// Arduino_HWSPI *bus = new Arduino_HWSPI(2 /* DC */, 15 /* CS */, SCK, MOSI, MISO);
+// Arduino_GFX *gfx = new Arduino_ILI9341(bus, 4 /* RST */, 0 /* rotation */);
 
 #include "MjpegClass.h"
 static MjpegClass mjpeg;
