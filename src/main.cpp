@@ -62,7 +62,7 @@ void setup()
     Serial.println(F("ERROR: Failed to open " MJPEG_FILENAME " file for reading"));
     gfx->println(F("ERROR: Failed to open " MJPEG_FILENAME " file for reading"));
 
-    while (true) ; // Stop execution
+    return; // Stop execution
   }
 
   mjpeg_buf = (uint8_t *)heap_caps_malloc(MJPEG_BUFFER_SIZE, MALLOC_CAP_DMA);
@@ -71,7 +71,7 @@ void setup()
     Serial.println(F("mjpeg_buf malloc failed!"));
     delay(1000); // Wait and try again
 
-    while (true) ; // Stop execution
+    return; // Stop execution
   }
   
   mjpeg.setup(vFile, mjpeg_buf, (Arduino_TFT *)gfx, true);
