@@ -4,15 +4,7 @@
 #define MJPEG_BUFFER_SIZE (300 * 220 * 2 / 4)
 
 #include <WiFi.h>
-#include <SD.h>
-#include <SD_MMC.h>
-
-#define SD_CS 5
-#define SD_MOSI 21
-#define SD_MISO 19
-#define SD_SCK 17
-
-SPIClass spiSD(HSPI);
+#include <SPIFFS.h>
 
 #include <Arduino_GFX_Library.h>
 #define TFT_BRIGHTNESS 128
@@ -29,6 +21,8 @@ static MjpegClass mjpeg;
 
 File vFile;
 uint8_t *mjpeg_buf = nullptr;
+
+void printFreeSpace();
 
 void setup()
 {
@@ -47,19 +41,22 @@ void setup()
   ledcAttachPin(TFT_BL, 1);     // assign TFT_BL pin to channel 1
   ledcWrite(1, TFT_BRIGHTNESS); // brightness 0 - 255
 #endif
-  
-  spiSD.begin(SD_SCK, SD_MISO, SD_MOSI, SD_CS);
 
-  // Init SD card
-  if (!SD.begin(SS, spiSD, 80000000)) /* SPI bus mode */
-  {
-    Serial.println(F("ERROR: SD card mount failed!"));
-    gfx->println(F("ERROR: SD card mount failed!"));
-
-    while (true) ; // Stop execution
+  // Попробуем смонтировать SPIFFS с возможностью форматирования, если монтирование не удалось
+  if (!SPIFFS.begin(true)) {  // 'true' позволяет переформатировать файловую систему при ошибке
+    Serial.println("SPIFFS mount failed! Formatting...");
+    if (SPIFFS.format()) {
+      Serial.println("SPIFFS formatted successfully.");
+      SPIFFS.begin(true);  // Попробуем снова
+    } else {
+      Serial.println("SPIFFS format failed!");
+      return;
+    }
   }
 
-  vFile = SD.open(MJPEG_FILENAME);
+  // printFreeSpace();
+  
+  vFile = SPIFFS.open(MJPEG_FILENAME);
   if (!vFile || vFile.isDirectory())
   {
     Serial.println(F("ERROR: Failed to open " MJPEG_FILENAME " file for reading"));
@@ -92,4 +89,15 @@ void loop()
   mjpeg.clearIndex();
 
   delay(100);
+}
+
+void printFreeSpace() {
+  size_t freeHeap = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
+  Serial.print("Free heap: ");
+  Serial.println(freeHeap);
+
+  // Проверка состояния файловой системы
+  Serial.printf("Total SPIFFS size: %d bytes\n", SPIFFS.totalBytes());
+  Serial.printf("Used SPIFFS space: %d bytes\n", SPIFFS.usedBytes());
+  Serial.printf("Free SPIFFS space: %d bytes\n", SPIFFS.totalBytes() - SPIFFS.usedBytes());
 }
