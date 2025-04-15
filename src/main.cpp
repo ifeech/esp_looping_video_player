@@ -32,7 +32,10 @@ uint8_t *mjpeg_buf = nullptr;
 
 void setup()
 {
-  WiFi.mode(WIFI_OFF);
+  WiFi.disconnect(true);  // Отключить WiFi
+  WiFi.mode(WIFI_OFF);    // Выключить WiFi
+  btStop();               // Полностью отключить Bluetooth
+  
   Serial.begin(115200);
 
   // Init Video
