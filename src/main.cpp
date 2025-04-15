@@ -65,7 +65,7 @@ void setup()
     while (true) ; // Stop execution
   }
 
-  mjpeg_buf = (uint8_t *)malloc(MJPEG_BUFFER_SIZE);
+  mjpeg_buf = (uint8_t *)heap_caps_malloc(MJPEG_BUFFER_SIZE, MALLOC_CAP_DMA);
   if (!mjpeg_buf)
   {
     Serial.println(F("mjpeg_buf malloc failed!"));
